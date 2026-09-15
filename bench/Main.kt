@@ -1,0 +1,29 @@
+// Bench entry point: `message`, `stream`, or `all` (default).
+
+package io.github.everanium.itb3.kotlin.bench
+
+import io.github.everanium.itb3.kotlin.ItbRuntime
+import kotlin.system.exitProcess
+
+fun main(args: Array<String>) {
+    // Go-runtime pacing caps for bench-scale allocation churn;
+    // run_bench.sh exports the same defaults via ITB_GOMEMLIMIT /
+    // ITB_GOGC as a fallback.
+    ItbRuntime.setMemoryLimit(4L shl 30)
+    ItbRuntime.setGCPercent(100)
+
+    when (args.firstOrNull() ?: "all") {
+        "message" -> BenchMessage.run()
+        "stream" -> BenchStream.run()
+        "stream_one_shot" -> BenchStreamOneShot.run()
+        "all" -> {
+            BenchMessage.run()
+            BenchStream.run()
+            BenchStreamOneShot.run()
+        }
+        else -> {
+            System.err.println("usage: bench [message|stream|stream_one_shot|all]")
+            exitProcess(2)
+        }
+    }
+}
